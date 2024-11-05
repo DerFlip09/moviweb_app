@@ -13,6 +13,9 @@ class DataManagerInterface(ABC):
         pass
 
     @abstractmethod
+    def get_user(self, user_id: int) -> 'User':
+        pass
+    @abstractmethod
     def get_user_movies(self, user_id: int) -> List['Movie']:
         """Retrieve all movies associated with a user."""
         pass

@@ -1,5 +1,9 @@
 import os
-from flask import Flask
+from typing import List
+
+from flask import Flask, render_template, request, redirect, url_for
+
+from datamanager.data_models import Movie
 from datamanager.sqlite_datamanager import SQLiteDataManager
 
 app = Flask(__name__)
@@ -12,6 +16,28 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(base_dir, "sto
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 dataman = SQLiteDataManager(app)
+
+
+@app.route('/users', methods=['GET'])
+def list_users():
+    users = dataman.get_all_users()
+    return render_template('users.html', users=users)
+
+
+@app.route('/users/<int:user_id>', methods=['GET'])
+def user_movies(user_id):
+    user_movies_list = dataman.get_user_movies(user_id)
+    user = dataman.get_user(user_id)
+    return render_template('user_movies.html', movies=user_movies_list, user=user)
+
+
+@app.route('/add_user', methods=['GET', 'POST'])
+def add_user():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        dataman.add_user(name)
+        return redirect(url_for('list_users', success=True), 302)
+    return render_template('add_user.html')
 
 
 if __name__ == '__main__':

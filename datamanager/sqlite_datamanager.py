@@ -18,6 +18,10 @@ class SQLiteDataManager(DataManagerInterface):
         users = User.query.all()
         return users
 
+    def get_user(self, user_id: int) -> 'User':
+        user = User.query.get(user_id)
+        return user
+
     def get_user_movies(self, user_id: int) -> List['Movie']:
         user = User.query.get(user_id)
         return user.movies
