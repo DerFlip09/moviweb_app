@@ -6,12 +6,12 @@
 </head>
 <body>
     <h1>Add Movie</h1>
-    {% if not success %}
+    {% if success == False %}
         <p style="color: red">Movie is already added</p>
     {% elif success %}
         <p style="color: green">Movie has been successfully added</p>
     {% endif %}
-    <form action="{{ url_for('add_movie') }}" method="POST">
+    <form action="{{ url_for('add_movie', user_id=user.id) }}" method="POST">
         <label for="title">Movie Title:</label>
         <input type="text" id="title" name="title" placeholder="Enter movie title" required><br><br>
         <label for="release_year">Release Year:</label>
@@ -20,6 +20,6 @@
         <textarea id="notes" name="notes" rows="4" cols="30" placeholder="Optional: Enter a personal note about the movie"></textarea><br><br>
         <input type="submit" value="Add Movie">
     </form>
-        <a href="{{ url_for('user_movie', user_id=user.id) }}">Back to {{ user.name }}</a>
+        <a href="{{ url_for('user_movies', user_id=user.id) }}">Back to {{ user.name }}</a>
 </body>
 </html>

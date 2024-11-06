@@ -57,5 +57,15 @@ def add_movie(user_id):
     return render_template('add_movie.html', user=user)
 
 
+@app.route('/users/<user_id>/update_movie/<movie_id>', methods=['GET', 'POST'])
+def update_movie(user_id, movie_id):
+    pass
+
+
+@app.route('/users/<user_id>/delete_movie/<movie_id>', methods=['GET', 'POST'])
+def delete_movie(user_id, movie_id):
+    pass
+
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)

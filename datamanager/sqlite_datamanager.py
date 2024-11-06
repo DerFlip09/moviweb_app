@@ -71,12 +71,14 @@ class SQLiteDataManager(DataManagerInterface):
             print(f"Movie '{title}' not found.")
             return None
         new_movie = Movie(title=title,
-                          director=response['director'],
+                          director=response['Director'],
                           release_year=release_year,
                           rating=response['imdbRating'],
                           poster=response['Poster'],
                           notes=notes)
         self.db.session.add(new_movie)
+        user = User.query.get(user_id)
+        user.movies.append(new_movie)
         self.db.session.commit()
         return new_movie
 

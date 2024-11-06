@@ -22,7 +22,7 @@
     </ol>
     {% else %}
         <p>No movies found for this user.</p>
-        <a href="{{ url_for('add_movie') }}">Do you want to add a movie?</a>
+        <a href="{{ url_for('add_movie', user_id=user.id) }}">Do you want to add a movie?</a>
     {% endif %}
 </body>
 </html>
