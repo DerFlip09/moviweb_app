@@ -1,11 +1,16 @@
+import os
+import dotenv
+import requests
 from typing import List, Optional
-
-from flask_sqlalchemy import SQLAlchemy
 from datamanager.data_manager import DataManagerInterface
 from datamanager.data_models import db, User, Movie
 
 
 class SQLiteDataManager(DataManagerInterface):
+
+    omdb_key = dotenv.get_key(os.path.join(os.getcwd(), '.env'), 'API_KEY')
+    omdb_url = f"http://www.omdbapi.com/?apikey={omdb_key}"
+
     def __init__(self, app):
         self.db = db
 
@@ -56,13 +61,20 @@ class SQLiteDataManager(DataManagerInterface):
             self.db.session.rollback()
             return False
 
-    def add_movie(self, title: str, director: Optional[str],
-                  release_year: int, rating: float,
-                  notes: Optional[str] = None) -> 'Movie':
+    def add_movie(self, user_id: int, title: str, release_year: Optional[int], notes: Optional[str]) -> Optional['Movie']:
+        if release_year:
+            api_query = self.omdb_url + f'&t={title}' + f'&y={release_year}'
+        else:
+            api_query = self.omdb_url + f'&t={title}'
+        response = requests.get(api_query).json()
+        if response.get('Response') == 'False':
+            print(f"Movie '{title}' not found.")
+            return None
         new_movie = Movie(title=title,
-                          director=director,
+                          director=response['director'],
                           release_year=release_year,
-                          rating=rating,
+                          rating=response['imdbRating'],
+                          poster=response['Poster'],
                           notes=notes)
         self.db.session.add(new_movie)
         self.db.session.commit()

@@ -40,5 +40,22 @@ def add_user():
     return render_template('add_user.html')
 
 
+@app.route('/users/<user_id>/add_movie', methods=['GET', 'POST'])
+def add_movie(user_id):
+    if request.method == 'POST':
+        movies = dataman.get_user_movies(user_id)
+        title = request.form.get('title')
+        existing_titles = [movie.title for movie in movies]
+        if title not in existing_titles:
+            release_year = request.form.get('release_year')
+            notes = request.form.get('notes')
+            dataman.add_movie(user_id, title, release_year, notes)
+            return redirect(url_for('add_movie',user_id=user_id, success=True))
+        else:
+            return redirect(url_for('add_movie', user_id=user_id, success=False))
+    user = dataman.get_user(user_id)
+    return render_template('add_movie.html', user=user)
+
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)

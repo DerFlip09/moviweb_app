@@ -7,14 +7,22 @@
 <body>
     <h1>{{ user.name }}'s Movies</h1>
     <a href="{{ url_for('list_users') }}">Back to Users</a>
+    {% if movies %}
     <ol>
         {% for movie in movies %}
-        <li>
-            <h2>{{ movie.title }}</h2>
-            <h3>{{ movie.release_year }}</h3>
-            <p>{{ movie.rating }}/10</p>
-        </li>
+            <li>
+                <img src="{{ movie.poster }}" alt="Poster for {{ movie.title }}">
+                <h2>{{ movie.title }}</h2>
+                <h3>{{ movie.release_year }}</h3>
+                <p>{{ movie.rating }}/10</p>
+                <a href="{{ url_for('update_movie', user_id=user.id, movie_id=movie.id) }}">Edit</a>
+                <a href="{{ url_for('delete_movie', user_id=user.id, movie_id=movie.id) }}">Delete</a>
+            </li>
         {% endfor %}
     </ol>
+    {% else %}
+        <p>No movies found for this user.</p>
+        <a href="{{ url_for('add_movie') }}">Do you want to add a movie?</a>
+    {% endif %}
 </body>
 </html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Movie - Movie Web App</title>
+</head>
+<body>
+    <h1>Add Movie</h1>
+    {% if not success %}
+        <p style="color: red">Movie is already added</p>
+    {% elif success %}
+        <p style="color: green">Movie has been successfully added</p>
+    {% endif %}
+    <form action="{{ url_for('add_movie') }}" method="POST">
+        <label for="title">Movie Title:</label>
+        <input type="text" id="title" name="title" placeholder="Enter movie title" required><br><br>
+        <label for="release_year">Release Year:</label>
+        <input type="text" id="release_year" name="release_year" placeholder="Enter optional for best results"><br><br>
+        <label for="notes">Notes:</label><br>
+        <textarea id="notes" name="notes" rows="4" cols="30" placeholder="Optional: Enter a personal note about the movie"></textarea><br><br>
+        <input type="submit" value="Add Movie">
+    </form>
+        <a href="{{ url_for('user_movie', user_id=user.id) }}">Back to {{ user.name }}</a>
+</body>
+</html>

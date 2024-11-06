@@ -43,6 +43,7 @@ class Movie(db.Model):
     director: db.Mapped[str] = db.mapped_column()
     release_year: db.Mapped[int] = db.mapped_column(nullable=False)
     rating: db.Mapped[float] = db.mapped_column(db.Float, nullable=False)
+    poster: db.Mapped[str] = db.mapped_column(nullable=True)
     notes: db.Mapped[str] = db.mapped_column()
 
     users: db.Mapped[list['User']] = db.relationship('User', secondary=user_movies, back_populates='movies')

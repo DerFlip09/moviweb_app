@@ -36,9 +36,7 @@ class DataManagerInterface(ABC):
         pass
 
     @abstractmethod
-    def add_movie(self, title: str, director: Optional[str],
-                  release_year: int, rating: float,
-                  notes: Optional[str] = None) -> 'Movie':
+    def add_movie(self, user_id: int, title: str, release_year: Optional[int], notes: Optional[str]) -> 'Movie':
         """Add a new movie to the database."""
         pass
 
