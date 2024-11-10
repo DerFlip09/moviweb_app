@@ -87,23 +87,28 @@ class SQLiteDataManager(DataManagerInterface):
         if not movie_data:
             print(f"Movie '{title}' not found.")
             return None
-        new_movie = Movie(title=title,
+        movies = self.db.session.query(Movie).all()
+        existing_movie = next((movie for movie in movies if movie.title.lower() == title.lower()), None)
+        if existing_movie:
+            movie = existing_movie
+        else:
+            movie = Movie(title=title,
                           director=movie_data['Director'],
                           release_year=release_year,
                           rating=movie_data['imdbRating'],
                           poster=movie_data['Poster'])
-        self.db.session.add(new_movie)
-        self.db.session.commit()
+            self.db.session.add(movie)
+            self.db.session.commit()
 
         insert_query = user_movies.insert().values(
             user_id=user_id,
-            movie_id=new_movie.id,
+            movie_id=movie.id,
             notes=notes,
             user_rating=user_rating
         )
         self.db.session.execute(insert_query)
         self.db.session.commit()
-        return new_movie
+        return movie
 
     def update_movie(self, user_id: int, movie_id: int, user_rating: float = None,
                      notes: str = None) -> bool:
@@ -125,10 +130,13 @@ class SQLiteDataManager(DataManagerInterface):
             print(f"Error updating Movie {movie_id}: {e}")
             return False
 
-    def delete_movie(self, movie_id: int) -> bool:
-        movie = Movie.query.get(movie_id)
+    def delete_movie(self, user_id: int, movie_id: int) -> bool:
         try:
-            self.db.session.delete(movie)
+            stmt = db.delete(user_movies).where(
+                user_movies.c.user_id == user_id,
+                user_movies.c.movie_id == movie_id
+            )
+            self.db.session.execute(stmt)
             self.db.session.commit()
             return True
         except Exception as e:

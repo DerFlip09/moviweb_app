@@ -51,6 +51,6 @@ class DataManagerInterface(ABC):
         pass
 
     @abstractmethod
-    def delete_movie(self, movie_id: int) -> bool:
+    def delete_movie(self, user_id: int, movie_id: int) -> bool:
         """Delete a movie from the database."""
         pass

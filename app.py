@@ -43,8 +43,8 @@ def add_movie(user_id):
     if request.method == 'POST':
         movies = dataman.get_user_movies(user_id)
         title = request.form.get('title')
-        existing_titles = [movie.title for movie, _, _ in movies]
-        if title not in existing_titles:
+        existing_titles = [movie.title.lower() for movie, _, _ in movies]
+        if title.lower() not in existing_titles:
             release_year = request.form.get('release_year')
             notes = request.form.get('notes')
             dataman.add_movie(user_id, title, release_year, notes=notes)
@@ -71,8 +71,9 @@ def update_movie(user_id, movie_id):
 
 @app.route('/users/<user_id>/delete_movie/<movie_id>', methods=['GET', 'POST'])
 def delete_movie(user_id, movie_id):
-    pass
+    success = dataman.delete_movie(user_id, movie_id)
+    return redirect(url_for("user_movies", user_id=user_id, success=success))
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)

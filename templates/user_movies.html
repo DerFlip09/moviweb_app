@@ -19,7 +19,9 @@
                 <p>Notes: {{ notes }}</p>
                 {% endif %}
                 <a href="{{ url_for('update_movie', user_id=user.id, movie_id=movie.id) }}">Edit</a>
-                <a href="{{ url_for('delete_movie', user_id=user.id, movie_id=movie.id) }}">Delete</a>
+                <form action="{{ url_for('delete_movie', user_id=user.id, movie_id=movie.id) }}" method="post">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
             </li>
         {% endfor %}
     </ol>
