@@ -9,12 +9,15 @@
     <a href="{{ url_for('list_users') }}">Back to Users</a>
     {% if movies %}
     <ol>
-        {% for movie in movies %}
+        {% for movie, notes, user_rating in movies %}
             <li>
                 <img src="{{ movie.poster }}" alt="Poster for {{ movie.title }}">
                 <h2>{{ movie.title }}</h2>
                 <h3>{{ movie.release_year }}</h3>
-                <p>{{ movie.rating }}/10</p>
+                <p>IMdB-Rating: {{ movie.rating }}/10, User-Rating: {{ user_rating }}/10</p>
+                {% if notes %}
+                <p>Notes: {{ notes }}</p>
+                {% endif %}
                 <a href="{{ url_for('update_movie', user_id=user.id, movie_id=movie.id) }}">Edit</a>
                 <a href="{{ url_for('delete_movie', user_id=user.id, movie_id=movie.id) }}">Delete</a>
             </li>

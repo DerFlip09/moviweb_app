@@ -1,8 +1,6 @@
 import os
 from typing import List
-
 from flask import Flask, render_template, request, redirect, url_for
-
 from datamanager.data_models import Movie
 from datamanager.sqlite_datamanager import SQLiteDataManager
 
@@ -45,11 +43,11 @@ def add_movie(user_id):
     if request.method == 'POST':
         movies = dataman.get_user_movies(user_id)
         title = request.form.get('title')
-        existing_titles = [movie.title for movie in movies]
+        existing_titles = [movie.title for movie, _, _ in movies]
         if title not in existing_titles:
             release_year = request.form.get('release_year')
             notes = request.form.get('notes')
-            dataman.add_movie(user_id, title, release_year, notes)
+            dataman.add_movie(user_id, title, release_year, notes=notes)
             return redirect(url_for('add_movie',user_id=user_id, success=True))
         else:
             return redirect(url_for('add_movie', user_id=user_id, success=False))
@@ -59,7 +57,16 @@ def add_movie(user_id):
 
 @app.route('/users/<user_id>/update_movie/<movie_id>', methods=['GET', 'POST'])
 def update_movie(user_id, movie_id):
-    pass
+    movie, notes, user_rating = dataman.get_user_movie(user_id, movie_id)
+    user = dataman.get_user(user_id)
+    if request.method == 'POST':
+        user_rating = request.form.get('update_rating')
+        notes = request.form.get('update_notes')
+        dataman.update_movie(user_id, movie_id, float(user_rating), notes)
+        movies = dataman.get_user_movies(user_id)
+        return redirect(url_for('user_movies', user_id=user_id, movies=movies))
+    return render_template('update_movie.html', movie=movie,
+                           notes=notes, user_rating=user_rating, user=user)
 
 
 @app.route('/users/<user_id>/delete_movie/<movie_id>', methods=['GET', 'POST'])

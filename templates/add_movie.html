@@ -6,9 +6,9 @@
 </head>
 <body>
     <h1>Add Movie</h1>
-    {% if success == False %}
+    {% if success == 'False' %}
         <p style="color: red">Movie is already added</p>
-    {% elif success %}
+    {% elif success == 'True' %}
         <p style="color: green">Movie has been successfully added</p>
     {% endif %}
     <form action="{{ url_for('add_movie', user_id=user.id) }}" method="POST">

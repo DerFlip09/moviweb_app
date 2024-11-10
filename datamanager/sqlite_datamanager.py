@@ -1,13 +1,12 @@
 import os
 import dotenv
 import requests
-from typing import List, Optional
+from typing import List, Optional, Any
 from datamanager.data_manager import DataManagerInterface
-from datamanager.data_models import db, User, Movie
+from datamanager.data_models import db, User, Movie, user_movies
 
 
 class SQLiteDataManager(DataManagerInterface):
-
     omdb_key = dotenv.get_key(os.path.join(os.getcwd(), '.env'), 'API_KEY')
     omdb_url = f"http://www.omdbapi.com/?apikey={omdb_key}"
 
@@ -19,6 +18,16 @@ class SQLiteDataManager(DataManagerInterface):
         with app.app_context():
             self.db.create_all()
 
+    def fetch_api_data(self, title: str, release_year: Optional[int]) -> Optional[dict]:
+        if release_year:
+            api_query = self.omdb_url + f'&t={title}' + f'&y={release_year}'
+        else:
+            api_query = self.omdb_url + f'&t={title}'
+        response = requests.get(api_query).json()
+        if response.get('Response') == 'False':
+            return None
+        return response
+
     def get_all_users(self) -> List['User']:
         users = User.query.all()
         return users
@@ -27,9 +36,19 @@ class SQLiteDataManager(DataManagerInterface):
         user = User.query.get(user_id)
         return user
 
-    def get_user_movies(self, user_id: int) -> List['Movie']:
-        user = User.query.get(user_id)
-        return user.movies
+    def get_user_movies(self, user_id: int) -> Optional[List['Movie']] | Any:
+        movies = self.db.session.query(Movie, user_movies.c.notes, user_movies.c.user_rating) \
+            .join(user_movies, user_movies.c.movie_id == Movie.id) \
+            .filter(user_movies.c.user_id == user_id) \
+            .all()
+        return movies
+
+    def get_user_movie(self, user_id: int, movie_id: int) -> 'Movie':
+        movie = self.db.session.query(Movie, user_movies.c.notes, user_movies.c.user_rating) \
+            .join(user_movies, user_movies.c.movie_id == Movie.id) \
+            .filter(user_movies.c.user_id == user_id, user_movies.c.movie_id == movie_id) \
+            .first()
+        return movie
 
     def add_user(self, name: str) -> 'User':
         new_user = User(name=name)
@@ -61,40 +80,50 @@ class SQLiteDataManager(DataManagerInterface):
             self.db.session.rollback()
             return False
 
-    def add_movie(self, user_id: int, title: str, release_year: Optional[int], notes: Optional[str]) -> Optional['Movie']:
-        if release_year:
-            api_query = self.omdb_url + f'&t={title}' + f'&y={release_year}'
-        else:
-            api_query = self.omdb_url + f'&t={title}'
-        response = requests.get(api_query).json()
-        if response.get('Response') == 'False':
+    def add_movie(self, user_id: int, title: str,
+                  release_year: Optional[int], user_rating: Optional[float] = None,
+                  notes: Optional[str] = None) -> Optional['Movie']:
+        movie_data = self.fetch_api_data(title, release_year)
+        if not movie_data:
             print(f"Movie '{title}' not found.")
             return None
         new_movie = Movie(title=title,
-                          director=response['Director'],
+                          director=movie_data['Director'],
                           release_year=release_year,
-                          rating=response['imdbRating'],
-                          poster=response['Poster'],
-                          notes=notes)
+                          rating=movie_data['imdbRating'],
+                          poster=movie_data['Poster'])
         self.db.session.add(new_movie)
-        user = User.query.get(user_id)
-        user.movies.append(new_movie)
+        self.db.session.commit()
+
+        insert_query = user_movies.insert().values(
+            user_id=user_id,
+            movie_id=new_movie.id,
+            notes=notes,
+            user_rating=user_rating
+        )
+        self.db.session.execute(insert_query)
         self.db.session.commit()
         return new_movie
 
-    def update_movie(self, movie_id: int,
-                     notes: Optional[str] = None) -> bool:
-        movie = Movie.query.get(movie_id)
-        if notes:
-            try:
-                movie.notes = notes
-                self.db.session.commit()
-                return True
-            except Exception as e:
-                self.db.session.rollback()
-                print(f"Error updating Movie {movie_id}: {e}")
-                return False
-        return False
+    def update_movie(self, user_id: int, movie_id: int, user_rating: float = None,
+                     notes: str = None) -> bool:
+        try:
+            stmt = db.update(user_movies). \
+                where(user_movies.c.user_id == user_id). \
+                where(user_movies.c.movie_id == movie_id)
+
+            if user_rating is not None:
+                stmt = stmt.values(user_rating=user_rating)
+            if notes is not None:
+                stmt = stmt.values(notes=notes)
+
+            self.db.session.execute(stmt)
+            self.db.session.commit()
+            return True
+        except Exception as e:
+            self.db.session.rollback()
+            print(f"Error updating Movie {movie_id}: {e}")
+            return False
 
     def delete_movie(self, movie_id: int) -> bool:
         movie = Movie.query.get(movie_id)

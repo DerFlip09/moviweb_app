@@ -14,7 +14,9 @@ db = SQLAlchemy(model_class=Base)
 # Join Table for User-Movie Relationship
 user_movies = db.Table('user_movies',
                        db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
-                       db.Column('movie_id', db.Integer, db.ForeignKey('movies.id'), primary_key=True)
+                       db.Column('movie_id', db.Integer, db.ForeignKey('movies.id'), primary_key=True),
+                       db.Column('notes', db.String, nullable=True),
+                       db.Column('user_rating', db.Float, nullable=True)
                        )
 
 
@@ -44,7 +46,6 @@ class Movie(db.Model):
     release_year: db.Mapped[int] = db.mapped_column(nullable=False)
     rating: db.Mapped[float] = db.mapped_column(db.Float, nullable=False)
     poster: db.Mapped[str] = db.mapped_column(nullable=True)
-    notes: db.Mapped[str] = db.mapped_column()
 
     users: db.Mapped[list['User']] = db.relationship('User', secondary=user_movies, back_populates='movies')
 

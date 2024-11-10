@@ -15,6 +15,7 @@ class DataManagerInterface(ABC):
     @abstractmethod
     def get_user(self, user_id: int) -> 'User':
         pass
+
     @abstractmethod
     def get_user_movies(self, user_id: int) -> List['Movie']:
         """Retrieve all movies associated with a user."""
@@ -36,13 +37,16 @@ class DataManagerInterface(ABC):
         pass
 
     @abstractmethod
-    def add_movie(self, user_id: int, title: str, release_year: Optional[int], notes: Optional[str]) -> 'Movie':
+    def add_movie(self, user_id: int, title: str,
+                  release_year: Optional[int],
+                  user_rating: Optional[float],
+                  notes: Optional[str]) -> 'Movie':
         """Add a new movie to the database."""
         pass
 
     @abstractmethod
-    def update_movie(self, movie_id: int,
-                     notes: Optional[str] = None) -> bool:
+    def update_movie(self, user_id: int, movie_id: int, user_rating: float = None,
+                     notes: str = None) -> bool:
         """Update an existing movie's details."""
         pass
 

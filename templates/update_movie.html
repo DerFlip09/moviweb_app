@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Movie - Movie Web App</title>
+</head>
+<body>
+    <h1>Update {{ movie.title }}</h1>
+    <form action="{{ url_for('update_movie', movie_id=movie.id, user_id=user.id) }}" method="POST">
+        <label for="update_rating">Update personal Rating:</label>
+        <input type="number" id="update_rating" name="update_rating" step="any" value="{{ user_rating or 0.0}}">
+        <label for="update_notes">Update personal Notes:</label>
+        <input type="text" id="update_notes" name="update_notes" value="{{ notes }}">
+        <input type="submit" value="Update Movie">
+    </form>
+    <a href="{{ url_for('user_movies', user_id=user.id) }}">Back to {{ user.name }}</a>
+</body>
+</html>
