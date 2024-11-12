@@ -75,5 +75,10 @@ def delete_movie(user_id, movie_id):
     return redirect(url_for("user_movies", user_id=user_id, success=success))
 
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
