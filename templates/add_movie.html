@@ -6,11 +6,13 @@
 </head>
 <body>
     <h1>Add Movie</h1>
-    {% if success == 'False' %}
-        <p style="color: red">Movie is already added</p>
-    {% elif success == 'True' %}
-        <p style="color: green">Movie has been successfully added</p>
-    {% endif %}
+        {% if success == 'False' %}
+            <p style="color: red">Movie is already in your list.</p>
+        {% elif success == 'True' %}
+            <p style="color: green">Movie has been successfully added!</p>
+        {% elif success == 'not_found' %}
+            <p style="color: red">Movie not found in the database.</p>
+        {% endif %}
     <form action="{{ url_for('add_movie', user_id=user.id) }}" method="POST">
         <label for="title">Movie Title:</label>
         <input type="text" id="title" name="title" placeholder="Enter movie title" required><br><br>

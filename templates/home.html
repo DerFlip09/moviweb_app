@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Movie Web App</title>
+</head>
+<body>
+    <h1>Welcome to the Movie Web App</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('list_users') }}">Users Overview</a></li>
+            <li><a href="{{ url_for('add_user') }}">Add New User</a></li>
+        </ul>
+    </nav>
+
+    <h2>All Movies in the Database</h2>
+    {% if movies %}
+        <ul>
+            {% for movie in movies %}
+                <li>
+                    <strong>{{ movie.title }}</strong> ({{ movie.release_year }}) - Directed by {{ movie.director }}<br>
+                    IMDb Rating: {{ movie.rating }}<br>
+                    <img src="{{ movie.poster }}" alt="Poster of {{ movie.title }}" style="height: 150px;">
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No Movies in the Database yet.</p>
+    {% endif %}
+</body>
+</html>

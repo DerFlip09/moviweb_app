@@ -7,6 +7,7 @@
 <body>
     <h1>{{ user.name }}'s Movies</h1>
     <a href="{{ url_for('list_users') }}">Back to Users</a>
+            <a href="{{ url_for('add_movie', user_id=user.id) }}">Add Movie</a>
     {% if movies %}
     <ol>
         {% for movie, notes, user_rating in movies %}
